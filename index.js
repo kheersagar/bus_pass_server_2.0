@@ -16,9 +16,9 @@ app.get("/",(req,res)=>{
 app.use("/auth",authRouter)
 
 const PORT =  process.env.PORT || 5000 
+database();
 app.listen(PORT,()=>{
   console.log("-------------server started on port " + PORT + " -----------------")
-  database();
 })
 
 
