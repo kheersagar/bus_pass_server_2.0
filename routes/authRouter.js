@@ -1,9 +1,8 @@
-const { loginController } = require('../controllers/authController');
-const { generateAccessToken } = require('../helpers/generateToken');
-const User = require('../UserSchema');
+const { loginController, adminLoginController } = require('../controllers/authController');
 
 const router = require('express').Router()
 
 router.post("/login",loginController)
+router.post("/admin/login",adminLoginController)
 
 module.exports = router

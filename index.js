@@ -9,11 +9,17 @@ app.use(express.urlencoded({extended:true}))
 const database = require("./mongoDB_connection");
 
 const authRouter = require("./routes/authRouter")
+const passRouter = require("./routes/passRouter");
+const userRouter = require("./routes/userRouter");
+const { tokenCheck } = require("./middleware/Tokencheck");
 app.get("/",(req,res)=>{
   res.send("Server running")
 })
 
 app.use("/auth",authRouter)
+app.use(tokenCheck)
+app.use("/user",userRouter)
+app.use("/bus-pass",passRouter)
 
 const PORT =  process.env.PORT || 5000 
 database();
