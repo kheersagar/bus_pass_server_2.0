@@ -40,7 +40,7 @@ const adminLoginController = async (req,res)=>{
     })
   }catch(err){
     console.log(err)
-    res.status(401).send(err)
+    res.status(401).send("Invalid username or password")
   }
 }
 module.exports = {loginController,adminLoginController}
