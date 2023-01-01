@@ -34,6 +34,12 @@ const getPassController = async (req, res) => {
         "bus_pass_id"
       );
       console.log(userData);
+      if(userData.bus_pass_id.valid_till < new Date()){
+        userData.status = 0
+        await userData.save()
+        await BusPass.deleteMany({user_id : userData._id})
+        return res.status(403).send("Bus Pass Expired!!")
+      }
       if (userData.status === 2) {
         res.send(userData.bus_pass_id);
       } else {
