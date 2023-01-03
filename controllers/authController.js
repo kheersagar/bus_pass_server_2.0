@@ -1,5 +1,9 @@
 const { generateAccessToken } = require("../helpers/generateToken");
+const OTP = require("../OTPSchema");
 const User = require("../UserSchema");
+const { EmailTransporter } = require("../EmailTransporter");
+var newOTP = require('otp-generators')
+const Validator = require("../ValidatorSchema");
 
 const loginController = async (req,res)=>{
   const { username, password } = req.body;
@@ -43,4 +47,60 @@ const adminLoginController = async (req,res)=>{
     res.status(401).send("Invalid username or password")
   }
 }
-module.exports = {loginController,adminLoginController}
+const validatorLoginController = async (req,res)=>{
+  const { username, password } = req.body;
+  console.log(req.body)
+  try{
+    const result = await Validator.findOne({ username: username, password: password });
+    const jwtEncryptData = {
+      'username' : result.username,
+      '_id'  : result._id,
+    }
+
+    const token = generateAccessToken(jwtEncryptData)
+    res.send({
+      token: token,
+      data:result
+    })
+  }catch(err){
+    console.log(err)
+    res.status(401).send("Invalid username or password")
+  }
+}
+const forgotPassword = async (req,res)=>{
+  const {email} = req.query
+  console.log(req.query)
+  try{
+    const userData = await User.findOne({email}) 
+    if(!userData) return res.status(403).send("Email not found!!")
+    const isOtp = await OTP.findOne({user_id : userData._id})
+    if(isOtp){
+      return res.send("OTP Already sent!!")
+    }
+    const otp = Number(newOTP.generate(6, { alphabets: false, upperCase: false, specialChar: false }));
+    console.log(otp)
+    await OTP.create({otp,user_id:userData._id})
+    EmailTransporter(email, otp);
+    res.send("OTP sent!!")
+  }catch(err){
+    console.log(err)
+    res.status(500).send(err)
+  }
+}
+const confirmPassword = async (req,res)=>{
+  const {password,otp} = req.body
+  console.log(req.body)
+  try{
+    const isOtp = await OTP.findOne({otp})
+    if(!isOtp){
+      return res.status(501).send("Invalid OTP")
+    }
+   const  _id = isOtp.user_id 
+    await User.findByIdAndUpdate(_id, {password : password})
+    res.send("Password Updated Successfully!!") 
+  }catch(err){
+    console.log(err.message)
+    res.status(500).send(err.message)
+  }
+}
+module.exports = {loginController,adminLoginController,forgotPassword,confirmPassword,validatorLoginController}

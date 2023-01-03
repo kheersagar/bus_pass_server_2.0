@@ -65,7 +65,6 @@ const busPassSchema = new Schema({
   updatedAt:{
     type: Date,
   }
-
 });
 
 busPassSchema.pre('save',function(next){

@@ -34,6 +34,9 @@ const getPassController = async (req, res) => {
         "bus_pass_id"
       );
       console.log(userData);
+      if(userData.status !== 2){
+        return res.status(403).send("No Buss Available!!")
+      }
       if(userData.bus_pass_id.valid_till < new Date()){
         userData.status = 0
         await userData.save()
@@ -88,14 +91,45 @@ const getAdminPassController = async (req, res) => {
     res.status(501).send(err);
   }
 };
-const getUserData = async (req, res) => {
-  const { _id } = req.body;
+const getValidatorPassController  = async (req, res) => {
+  const { page, limit, search } = req.query;
+  let query = { isResource: true };
+  console.log(page, limit, !search, query);
+  const searchQuery = !search
+    ? [query]
+    : [
+        { first_name: { $regex: search?.trim(), $options: "i" } },
+        { last_name: { $regex: search?.trim(), $options: "i" } },
+        { email: { $regex: search?.trim(), $options: "i" } },
+        { username: { $regex: search?.trim(), $options: "i" } },
+      ];
   try {
-    const userData = await BusPass.find({ _id });
+    const userData = await User.find({status:2})
+      .find({
+        $or: searchQuery,
+      })
+      .skip(limit * (page - 1))
+      .limit(limit)
+      .populate("bus_pass_id");
+    console.log(userData.length);
     res.send(userData);
   } catch (err) {
     console.log(err);
     res.status(501).send(err);
+  }
+};
+const getUserData = async (req, res) => {
+  const { bus_pass_id } = req.query;
+  console.log(bus_pass_id)
+  try {
+    const userData = await User.findOne({ bus_pass_id }).populate('bus_pass_id');
+    if(!userData){
+      return res.status(501).send("No Buss Available!!")
+    }
+    res.send(userData.bus_pass_id);
+  } catch (err) {
+    console.log(err);
+    res.status(501).send(err.message);
   }
 };
 const updatePassController = async (req, res) => {
@@ -103,10 +137,6 @@ const updatePassController = async (req, res) => {
     const { bus_pass_id, user_id, status, decline_reason, valid_till, bus_no } =
       req.body;
     const result = await BusPass.findOne({ _id: bus_pass_id });
-    if (status == 2) {
-      const encoded_data = await generateQR("test");
-      result._doc.qr_code = encoded_data;
-    }
     const temp = { ...result._doc };
     temp.status = status;
     temp.decline_reason = decline_reason;
@@ -115,6 +145,12 @@ const updatePassController = async (req, res) => {
     delete temp._id;
     delete temp.createdAt;
     const newData = await BusPass.create({ ...temp });
+    console.log(newData)
+    if (status == 2) {
+      const encoded_data = await generateQR(`${newData._id}`);
+      newData.qr_code = encoded_data;
+      await newData.save()
+    }
     await User.findByIdAndUpdate(user_id, { bus_pass_id: newData._id, status });
     res.send("Updated Successfully");
   } catch (err) {
@@ -127,4 +163,6 @@ module.exports = {
   updatePassController,
   getPassController,
   getAdminPassController,
+  getUserData,
+  getValidatorPassController
 };

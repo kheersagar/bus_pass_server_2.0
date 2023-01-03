@@ -20,10 +20,10 @@ const isAdmin = (req,res,next) =>{
 
   try {
     const isValid = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    if (isValid && isValid.role != 'user') {
+    if (isValid && isValid.role === 'admin') {
       next();
     }else{
-      res.staus(403).send("Not an Admin")
+      res.status(403).send("Not an Admin")
     }
   } catch (err) {
     console.log(err);

@@ -1,4 +1,4 @@
-const { getNotification, getUserData, updateProfile, createNewStudent, createNewStudentCSV } = require('../controllers/userController')
+const { getNotification, getUserData, updateProfile, createNewStudent, createNewStudentCSV, createNewValidator, getValidator, removeValidator} = require('../controllers/userController')
 
 const router = require('express').Router()
 const path = require('path')
@@ -24,8 +24,12 @@ router.get("/",getUserData)
 router.post("/update-profile",updateProfile)
 router.get("/notification",getNotification)
 
+
 router.use(isAdmin)
 
+router.get("/validator",getValidator)
+router.post("/delete-validator",removeValidator)
+router.post("/create-new-validator",createNewValidator)
 router.post("/create-new-student",createNewStudent)
 router.post("/create-new-student-csv",upload.single('studentCSV'),createNewStudentCSV)
 module.exports = router
