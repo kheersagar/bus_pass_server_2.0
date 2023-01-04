@@ -123,7 +123,7 @@ const confirmPassword = async (req,res)=>{
       return res.status(501).send("Invalid OTP")
     }
    const  _id = isOtp.user_id 
-    await User.findByIdAndUpdate(_id, {password : password})
+    await User.findOneAndUpdate({_id}, {password : password})
     res.send("Password Updated Successfully!!") 
   }catch(err){
     console.log(err.message)
