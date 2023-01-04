@@ -1,4 +1,4 @@
-const { getNotification, getUserData, updateProfile, createNewStudent, createNewStudentCSV, createNewValidator, getValidator, removeValidator} = require('../controllers/userController')
+const { getNotification, getUserData, updateProfile, createNewStudent, createNewStudentCSV, createNewValidator, getValidator, removeValidator, updateValidatorProfile} = require('../controllers/userController')
 
 const router = require('express').Router()
 const path = require('path')
@@ -22,6 +22,7 @@ var upload = multer({
 
 router.get("/",getUserData)
 router.post("/update-profile",updateProfile)
+router.post("/update-validator-profile",updateValidatorProfile)
 router.get("/notification",getNotification)
 
 

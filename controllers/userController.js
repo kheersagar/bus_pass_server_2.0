@@ -4,20 +4,21 @@ const User = require("../UserSchema");
 const { decodeJwt } = require("../helpers/decodeJWT");
 const csv = require("csvtojson");
 const Validator = require("../ValidatorSchema");
+const { AddValidatorEmailTransporter } = require("../AddValidatorEmail");
 
 const getUserData = (req, res) => {
   try {
     const token = req.headers["x-access-token"];
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
       if (err) {
-        return res.status(403).send(err);
+        return res.status(403).send(err.message);
       }
       const user_id = data._id;
       const userData = await User.findOne({ _id: user_id });
       res.send(userData);
     });
   } catch (err) {
-    res.status(501).send(err);
+    res.status(501).send(err.message);
   }
 };
 const getNotification = async (req, res) => {
@@ -25,7 +26,7 @@ const getNotification = async (req, res) => {
     const token = req.headers["x-access-token"];
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
       if (err) {
-        return res.status(403).send(err);
+        return res.status(403).send(err.message);
       }
       console.log(data);
       const user_id = data._id;
@@ -40,7 +41,7 @@ const getNotification = async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(501).send(err);
+    res.status(501).send(err.message);
   }
 };
 
@@ -54,6 +55,7 @@ const getValidator = async (req, res) => {
 };
 
 const updateProfile = async (req, res) => {
+  console.log(req.body)
   try {
     const { _id } = decodeJwt(req.headers["x-access-token"]);
     await User.findByIdAndUpdate(_id, req.body);
@@ -61,12 +63,26 @@ const updateProfile = async (req, res) => {
     res.send(result);
   } catch (err) {
     console.log(err);
-    res.status(501).send(err);
+    res.status(501).send(err.message);
+  }
+};
+const updateValidatorProfile = async (req, res) => {
+  console.log(req.body)
+  try {
+    const { _id } = decodeJwt(req.headers["x-access-token"]);
+    await Validator.findByIdAndUpdate(_id, req.body);
+    const result = await Validator.findOne({ _id });
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(501).send(err.message);
   }
 };
 const createNewValidator = async (req, res) => {
   try {
+    req.body.profile_img = '';
     await Validator.create(req.body);
+    AddValidatorEmailTransporter(req.body.email,req.body.username);
     res.send("Created Successfully");
   } catch (err) {
     console.log(err);
@@ -98,7 +114,7 @@ const createNewStudent = async (req, res) => {
     res.send("Created Successfully");
   } catch (err) {
     console.log(err);
-    res.status(500).send(err);
+    res.status(500).send(err.message);
   }
 };
 
@@ -110,7 +126,7 @@ const createNewStudentCSV = async (req, res) => {
     res.send("Created Successfully");
   } catch (err) {
     console.log(err);
-    res.status(500).send(err);
+    res.status(500).send(err.message);
   }
 };
 
@@ -131,5 +147,6 @@ module.exports = {
   createNewStudent,
   createNewStudentCSV,
   getValidator,
-  removeValidator
+  removeValidator,
+  updateValidatorProfile
 };

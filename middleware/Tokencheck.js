@@ -11,7 +11,7 @@ const tokenCheck = (req,res,next) =>{
     }
   } catch (err) {
     console.log(err);
-    res.status(401).send(err);
+    res.status(401).send(err.message);
   }
 }
 const isAdmin = (req,res,next) =>{
@@ -27,7 +27,7 @@ const isAdmin = (req,res,next) =>{
     }
   } catch (err) {
     console.log(err);
-    res.status(401).send(err);
+    res.status(401).send(err.message);
   }
 }
 

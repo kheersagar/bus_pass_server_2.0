@@ -4,67 +4,94 @@ const User = require("../UserSchema");
 const { EmailTransporter } = require("../EmailTransporter");
 var newOTP = require('otp-generators')
 const Validator = require("../ValidatorSchema");
+const bcrypt = require('bcrypt')
 
 const loginController = async (req,res)=>{
   const { username, password } = req.body;
   console.log(req.body)
   try{
-    const result = await User.findOne({ username: username, password: password });
-    const jwtEncryptData = {
-      'username' : result.username,
-      '_id'  : result._id,
-      'role' : result.role
+    const result = await User.findOne({ username: username});
+    if(!result){
+      res.status(400).send("No user found!")
+    }else{
+    if (result && await bcrypt.compare(password, result.password)){
+      const jwtEncryptData = {
+        'username' : result.username,
+        '_id'  : result._id,
+        'role':result.role
+      }
+  
+      const token = generateAccessToken(jwtEncryptData)
+      res.send({
+        token: token,
+        data:result
+      })
+    }else{
+      res.status(401).send("Invalid password")
     }
-    const token = generateAccessToken(jwtEncryptData)
-    res.send({
-      token: token,
-      data:result
-    })
+  }
   }catch(err){
     console.log(err)
-    res.status(401).send("Invalid username or password")
+    res.status(401).send(err.message)
   }
 }
 const adminLoginController = async (req,res)=>{
   const { username, password } = req.body;
   console.log(req.body)
   try{
-    const result = await User.findOne({ username: username, password: password });
-    const jwtEncryptData = {
-      'username' : result.username,
-      '_id'  : result._id,
-      'role' : result.role
-    }
-    if(result.role !== 'admin' ) return res.status(403).send('Not an Admin')
+    const result = await User.findOne({ username: username});
+    if(!result){
+      res.status(400).send("No user found!")
+    }else{
+    if (result && await bcrypt.compare(password, result.password)){
+      const jwtEncryptData = {
+        'username' : result.username,
+        '_id'  : result._id,
+        'role':result.role
+      }
+      if(result.role !== 'admin' ) return res.status(403).send('Not an Admin')
 
-    const token = generateAccessToken(jwtEncryptData)
-    res.send({
-      token: token,
-      data:result
-    })
+      const token = generateAccessToken(jwtEncryptData)
+      res.send({
+        token: token,
+        data:result
+      })
+    }else{
+      res.status(400).send("Invalid password")
+    }
+  }
   }catch(err){
     console.log(err)
-    res.status(401).send("Invalid username or password")
+    res.status(401).send(err.message)
   }
 }
 const validatorLoginController = async (req,res)=>{
   const { username, password } = req.body;
   console.log(req.body)
   try{
-    const result = await Validator.findOne({ username: username, password: password });
-    const jwtEncryptData = {
-      'username' : result.username,
-      '_id'  : result._id,
+    const result = await Validator.findOne({ username: username});
+    if(!result){
+      res.status(400).send("No user found!")
+    }else{
+    if (result && await bcrypt.compare(password, result.password)){
+      const jwtEncryptData = {
+        'username' : result.username,
+        '_id'  : result._id,
+        'role':result.role
+      }
+  
+      const token = generateAccessToken(jwtEncryptData)
+      res.send({
+        token: token,
+        data:result
+      })
+    }else{
+      res.status(401).send("Invalid password")
     }
-
-    const token = generateAccessToken(jwtEncryptData)
-    res.send({
-      token: token,
-      data:result
-    })
+  }
   }catch(err){
     console.log(err)
-    res.status(401).send("Invalid username or password")
+    res.status(401).send(err.message)
   }
 }
 const forgotPassword = async (req,res)=>{
@@ -84,7 +111,7 @@ const forgotPassword = async (req,res)=>{
     res.send("OTP sent!!")
   }catch(err){
     console.log(err)
-    res.status(500).send(err)
+    res.status(500).send(err.message)
   }
 }
 const confirmPassword = async (req,res)=>{

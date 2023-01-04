@@ -19,7 +19,7 @@ const applyPassController = async (req, res) => {
     res.send(userData);
   } catch (err) {
     console.log(err);
-    res.status(501).send(err);
+    res.status(501).send(err.message);
   }
 };
 const getPassController = async (req, res) => {
@@ -27,7 +27,7 @@ const getPassController = async (req, res) => {
     const token = req.headers["x-access-token"];
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
       if (err) {
-        return res.status(403).send(err);
+        return res.status(403).send(err.message);
       }
       const user_id = data._id;
       const userData = await User.findOne({ _id: user_id }).populate(
@@ -51,7 +51,7 @@ const getPassController = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.status(501).send(err);
+    res.status(501).send(err.message);
   }
 };
 
@@ -88,7 +88,7 @@ const getAdminPassController = async (req, res) => {
     res.send(userData);
   } catch (err) {
     console.log(err);
-    res.status(501).send(err);
+    res.status(501).send(err.message);
   }
 };
 const getValidatorPassController  = async (req, res) => {
@@ -115,7 +115,7 @@ const getValidatorPassController  = async (req, res) => {
     res.send(userData);
   } catch (err) {
     console.log(err);
-    res.status(501).send(err);
+    res.status(501).send(err.message);
   }
 };
 const getUserData = async (req, res) => {
@@ -155,7 +155,7 @@ const updatePassController = async (req, res) => {
     res.send("Updated Successfully");
   } catch (err) {
     console.log(err);
-    res.status(501).send(err);
+    res.status(501).send(err.message);
   }
 };
 module.exports = {
