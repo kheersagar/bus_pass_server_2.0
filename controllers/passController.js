@@ -35,7 +35,7 @@ const getPassController = async (req, res) => {
       );
       console.log(userData);
       if(userData.status !== 2){
-        return res.status(403).send("No Buss Available!!")
+        return res.status(503).send("No Pass Available!!")
       }
       if(userData.bus_pass_id.valid_till < new Date()){
         userData.status = 0

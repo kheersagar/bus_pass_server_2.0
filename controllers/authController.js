@@ -1,10 +1,12 @@
-const { generateAccessToken } = require("../helpers/generateToken");
+const { generateAccessToken, generateRefreshToken } = require("../helpers/generateToken");
 const OTP = require("../OTPSchema");
 const User = require("../UserSchema");
 const { EmailTransporter } = require("../EmailTransporter");
 var newOTP = require('otp-generators')
 const Validator = require("../ValidatorSchema");
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const userSession = require("../sessionSchema");
+const { decodeJwt } = require("../helpers/decodeJWT");
 
 const loginController = async (req,res)=>{
   const { username, password } = req.body;
@@ -22,6 +24,12 @@ const loginController = async (req,res)=>{
       }
   
       const token = generateAccessToken(jwtEncryptData)
+      const refreshToken = generateRefreshToken(jwtEncryptData)
+      await userSession.deleteMany({user_id: result._id})
+      await userSession.create({
+        user_id: result._id,
+        refreshToken: refreshToken
+      })
       res.send({
         token: token,
         data:result
@@ -52,6 +60,12 @@ const adminLoginController = async (req,res)=>{
       if(result.role !== 'admin' ) return res.status(403).send('Not an Admin')
 
       const token = generateAccessToken(jwtEncryptData)
+      const refreshToken = generateRefreshToken(jwtEncryptData)
+      await userSession.deleteMany({user_id: result._id})
+      await userSession.create({
+        user_id: result._id,
+        refreshToken: refreshToken
+      })
       res.send({
         token: token,
         data:result
@@ -81,6 +95,12 @@ const validatorLoginController = async (req,res)=>{
       }
   
       const token = generateAccessToken(jwtEncryptData)
+      const refreshToken = generateRefreshToken(jwtEncryptData)
+      await userSession.deleteMany({user_id: result._id})
+      await userSession.create({
+        user_id: result._id,
+        refreshToken: refreshToken
+      })
       res.send({
         token: token,
         data:result
@@ -92,6 +112,17 @@ const validatorLoginController = async (req,res)=>{
   }catch(err){
     console.log(err)
     res.status(401).send(err.message)
+  }
+}
+const logout = async (req,res)=>{
+  try{
+    const token = req.headers['x-access-token'];
+    const isValid = decodeJwt(token)
+    await userSession.deleteMany({user_id: isValid._id})
+    res.send('Looged out')
+  }catch(err){
+    console.log(err)
+    res.status(501).send(err.message)
   }
 }
 const forgotPassword = async (req,res)=>{
@@ -131,4 +162,4 @@ const confirmPassword = async (req,res)=>{
     res.status(500).send(err.message)
   }
 }
-module.exports = {loginController,adminLoginController,forgotPassword,confirmPassword,validatorLoginController}
+module.exports = {loginController,adminLoginController,forgotPassword,confirmPassword,validatorLoginController,logout}
