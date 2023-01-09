@@ -51,7 +51,7 @@ const getPassController = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.status(501).send(err.message);
+    res.status(501).send("Internal Server Error");
   }
 };
 
