@@ -1,29 +1,30 @@
 const express = require("express");
-const cors = require("cors")
+const cors = require("cors");
 const dotenv = require("dotenv").config();
 
 const app = express();
 
-app.use(cors({
-  origin:'*',
-}))
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 const database = require("./mongoDB_connection");
 
-const authRouter = require("./routes/authRouter")
+const authRouter = require("./routes/authRouter");
 const passRouter = require("./routes/passRouter");
 const userRouter = require("./routes/userRouter");
 const { tokenCheck } = require("./middleware/Tokencheck");
-app.get("/",(req,res)=>{
-  res.send("Server running")
-})
+app.get("/", (req, res) => {
+  res.send("Server running");
+});
 
 // contact
-app.post("/contact",async (req,res)=>{
-  try{
-
-    const {email} = req.body
+app.post("/contact", async (req, res) => {
+  try {
+    const { fullName, phone, message, budget, email } = req.body;
     var mailOptions = {
       from: "rahhar848@gmail.com",
       to: email,
@@ -46,7 +47,7 @@ app.post("/contact",async (req,res)=>{
     });
     var mailOptions = {
       from: "rahhar848@gmail.com",
-      to: 'santparja@gmail.com',
+      to: "santparja@gmail.com",
       subject: "Porject Discussion",
       html: `<div>
           <h1>Contact details</h1>
@@ -64,23 +65,23 @@ app.post("/contact",async (req,res)=>{
         return true;
       }
     });
-    res.status(200).send("Congrats!! Your Query is sent")
-  }catch(err){
-    console.log(err.message)
-    res.status(500).send("Internal server error")
+    res.status(200).send("Congrats!! Your Query is sent");
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send("Internal server error");
   }
-})
-// 
+});
+//
 
-app.use("/auth",authRouter)
-app.use(tokenCheck)
-app.use("/user",userRouter)
-app.use("/bus-pass",passRouter)
+app.use("/auth", authRouter);
+app.use(tokenCheck);
+app.use("/user", userRouter);
+app.use("/bus-pass", passRouter);
 
-const PORT =  process.env.PORT || 5000 
+const PORT = process.env.PORT || 5000;
 database();
-app.listen(PORT,()=>{
-  console.log("-------------server started on port " + PORT + " -----------------")
-})
-
-
+app.listen(PORT, () => {
+  console.log(
+    "-------------server started on port " + PORT + " -----------------"
+  );
+});
