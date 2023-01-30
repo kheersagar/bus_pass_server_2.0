@@ -26,11 +26,11 @@ app.post("/contact", async (req, res) => {
   try {
     const { fullName, phone, message, budget, email } = req.body;
     var mailOptions = {
-      from: "rahhar848@gmail.com",
+      from: "kheersagar",
       to: email,
       subject: "Project Discussion",
       html: `<div>
-          <h1>Hello ${email}!</h1>
+          <h1>Hello ${fullName}!</h1>
           <h2>Thanks for contacting us!</h2>
           <h2>W'll reach back to you soon.</h2>
         </div>
@@ -46,9 +46,9 @@ app.post("/contact", async (req, res) => {
       }
     });
     var mailOptions = {
-      from: "rahhar848@gmail.com",
+      from: "kheersagar",
       to: "santparja@gmail.com",
-      subject: "Porject Discussion",
+      subject: "Project Discussion",
       html: `<div>
           <h1>Contact details</h1>
           <h3>email - ${email}, name - ${fullName}, phone - ${phone},budget- ${budget}</h3>
