@@ -20,7 +20,7 @@ app.get("/",(req,res)=>{
 })
 
 // contact
-app.post("/contact",async (reqw,res)=>{
+app.post("/contact",async (req,res)=>{
   try{
 
     const {email} = req.body
