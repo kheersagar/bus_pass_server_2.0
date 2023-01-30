@@ -47,7 +47,7 @@ app.post("/contact",async (reqw,res)=>{
       subject: "Porject Discussion",
       html: `<div>
           <h1>Contact details</h1>
-          <h3>email - ${email}, name - ${fullName}, phone - ${phone}</h3>
+          <h3>email - ${email}, name - ${fullName}, phone - ${phone},budget- ${budget}</h3>
           <h3>message - ${message} </h3>
         </div>
       `,
